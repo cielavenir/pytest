@@ -372,7 +372,8 @@ class TestReport(BaseReport):
                         excinfo, style=item.config.getoption("tbstyle", "auto")
                     )
         for rwhen, key, content in item._report_sections:
-            sections.append(("Captured %s %s" % (key, rwhen), content))
+            if item._failed or outcome == "failed":
+                sections.append(("Captured %s %s" % (key, rwhen), content))
         return cls(
             item.nodeid,
             item.location,

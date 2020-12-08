@@ -82,16 +82,24 @@ def pytest_runtest_protocol(item, nextitem):
 
 def runtestprotocol(item, log=True, nextitem=None):
     hasrequest = hasattr(item, "_request")
+    item._failed = False
     if hasrequest and not item._request:
         item._initrequest()
     rep = call_and_report(item, "setup", log)
     reports = [rep]
+    if reports[-1].failed:
+        item._failed = True
     if rep.passed:
         if item.config.getoption("setupshow", False):
             show_test_item(item)
         if not item.config.getoption("setuponly", False):
             reports.append(call_and_report(item, "call", log))
+            if reports[-1].failed:
+                item._failed = True
     reports.append(call_and_report(item, "teardown", log, nextitem=nextitem))
+    if reports[-1].failed:
+        item._failed = True
+    item._report_sections[:] = []
     # after all teardown hooks have been called
     # want funcargs and request info to go away
     if hasrequest:
