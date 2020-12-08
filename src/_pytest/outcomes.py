@@ -45,6 +45,9 @@ class Skipped(OutcomeException):
         OutcomeException.__init__(self, msg=msg, pytrace=pytrace)
         self.allow_module_level = allow_module_level
 
+    def __init__(self, msg=None, pytrace=True, ignore_xfail=False):
+        OutcomeException.__init__(self, msg=msg, pytrace=pytrace)
+        self.ignore_xfail = ignore_xfail
 
 class Failed(OutcomeException):
     """ raised from an explicit call to pytest.fail() """
@@ -107,16 +110,17 @@ def skip(msg="", **kwargs):
 skip.Exception = Skipped
 
 
-def fail(msg="", pytrace=True):
+def fail(msg="", pytrace=True, ignore_xfail=False):
     """
     Explicitly fail an executing test with the given message.
 
     :param str msg: the message to show the user as reason for the failure.
     :param bool pytrace: if false the msg represents the full failure information and no
         python traceback will be reported.
+    :param bool ignore_xfail: makes the test failing even if the test is marked as xfail.
     """
     __tracebackhide__ = True
-    raise Failed(msg=msg, pytrace=pytrace)
+    raise Failed(msg=msg, pytrace=pytrace, ignore_xfail=ignore_xfail)
 
 
 fail.Exception = Failed
